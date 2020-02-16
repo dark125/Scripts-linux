@@ -1,0 +1,9 @@
+#EXTM3U
+#EXTINF:-1 tvg-logo="https://i.imgur.com/mLpxdaU.png" tvg-id="willax.pe" tvg-chno="" group-title="PERU",WILLAX[1080]
+http://192.168.2.106:8090/WILLAX-FULLHD.m3u8
+#EXTINF:-1 tvg-logo="https://i.imgur.com/P1Nqmqs.png" tvg-id="exitosa.pe" tvg-chno="" group-title="PERU",EXITOSA[1080]
+http://192.168.2.106:8090/EXITOSA-FULLHD.m3u8
+#EXTINF:-1 tvg-logo="https://i.imgur.com/irCsnAx.png" tvg-id="ipe.pe" tvg-chno="" group-title="PERU",IPe[1080]
+http://192.168.2.106:8090/IPE-FULLHD.m3u8
+#EXTINF:-1 tvg-logo="https://i.imgur.com/96aQcWu.png" tvg-id="tvperu.pe" tvg-chno="" group-title="PERU",TVPERU[1080]
+http://192.168.2.106:8090/TVPERU-FULLHD.m3u8
