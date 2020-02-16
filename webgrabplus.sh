@@ -1,2 +1,2 @@
 #!/bin/bash
-/home/pi/Downloads/.wg++/run.sh
+/home/pi/guia/WebgrabPlus/.wg++/run.sh
