@@ -1,0 +1,11 @@
+start=0
+days=6
+ncdays=0
+ncsdays=2
+retries=2
+user=xxxx
+pass=xxxxx
+cache=/home/pi/guia/epg/cache1
+lang=spa
+outfile=/home/pi/guia/temp_epg/claro-per.xmltv
+outformat=xmltv

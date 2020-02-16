@@ -1,0 +1,11 @@
+start=0
+days=6
+ncdays=0
+ncsdays=2
+retries=2
+user=xxxx
+pass=xxxxxx
+cache=/home/pi/guia/epg/cache2
+lang=spa
+outfile=/home/pi/guia/epg/claro-combinado.xmltv
+outformat=xmltv
