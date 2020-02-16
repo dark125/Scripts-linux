@@ -1,0 +1,183 @@
+1-Instalar tv_merge y tv_sort que se encuentran en el paquete xmltv-util
+
+sudo apt-get install xmltv-util
+
+2-Antes de combinar los xml primero necesitamos ordenarlos.
+
+*Usamos tv_sort para ordenarlos
+(Si tienes en tus xml etiquetas raras como <live>, <sport>, etc es posible que que te aparezca un error parecido a esto
+"unknown element live at /usr/share/perl5/XMLTV.pm", a pesar de ese error el archivo será ordenado)
+
+*Ordenamos el primero
+
+tv_sort --by-channel --output /home/pi/guia/temp_epg/colombia_temp.xml /home/pi/guia/temp_epg/colombia.xml 
+
+Descripción:
+
+### --by-channel ===========================================>  Opción para ordenar
+###--output /home/pi/guia/temp_epg/colombia_temp.xml  ======>  Ruta donde se guardaráel archivo ordenado
+### /home/pi/guia/temp_epg/colombia.xml ====================>  Ruta del archivo origen
+
+
+**Como a mi me aparece el error mencionado arriba yo le pongo al final de mi código esto ">/dev/null 2>&1"
+eso evita que me aparezca cualquier error en la terminal.
+***Entonces el código quedaría así. (lo mismo haré con el segundo xml)
+
+tv_sort --by-channel --output /home/pi/guia/temp_epg/colombia_temp.xml /home/pi/guia/temp_epg/colombia.xml >/dev/null 2>&1
+
+
+*Ordenamos el segundo
+
+tv_sort --by-channel --output /home/pi/guia/temp_epg/mexico_temp.xml /home/pi/guia/temp_epg/mexico.xml
+
+**No mostrar errores
+
+tv_sort --by-channel --output /home/pi/guia/temp_epg/mexico_temp.xml /home/pi/guia/temp_epg/mexico.xml >/dev/null 2>&1
+
+
+3-Ahora vamos a Combinarlos
+
+
+tv_merge -i /home/pi/guia/temp_epg/mexico_temp.xml -m /home/pi/guia/temp_epg/colombia_temp.xml -o /home/pi/guia/epg/combinado_mex_co.xmltv
+
+Descripción:
+
+tv_merge -t -i master.xml -m nuevas-adiciones.xml -o nuevo-master.xml
+
+### -i /home/pi/guia/temp_epg/mexico_temp.xml =============================> Ruta del archivo master (el más pesado)
+### -m /home/pi/guia/temp_epg/colombia_temp.xml ===============================> Ruta del archivo menos pesado que contiene los programas/canales que queremos añadirlos al archivo master.
+### -o /home/pi/guia/epg/combinado_mex_co.xmltv =============================> Ruta del archivo de salida combinado
+
+
+****tv_merge actualizará (agregar / reemplazar / eliminar) el archivo XMLTV original (archivo master) con canales y programas contenidos en el segundo archivo.****
+
+
+***esto puede demorar un poco dependiendo del peso de archivo xml***
+
+****Al instalar el paquete xml-util tambien se instalará un archivo de nombre tv_cat,que es parecido a tv_merge, la diferena radica en que tv_cat
+solo une los archivos tal cual, en cambio como expliqué arriba tv_merge funciona con múltiples canales e insertará cualquier programa nuevo 
+y eliminará cualquier programa superpuesto.****
+
+
+4-Se puede crear un script bash que combinará los archivos y podemos añadirlo a crontab para que se ejecute periodicamente
+
+*Crear bash script
+
+nano /home/pi/guia/Scripts/combinar_xml.sh
+
+*Pegamos esto
+
+#!/bin/bash
+
+#Ordenamos el primero
+
+tv_sort --by-channel --output /home/pi/guia/temp_epg/colombia_temp.xml /home/pi/guia/temp_epg/colombia.xml >/dev/null 2>&1
+
+#Ordenamos el segundo
+
+tv_sort --by-channel --output /home/pi/guia/temp_epg/mexico_temp.xml /home/pi/guia/temp_epg/mexico.xml >/dev/null 2>&1
+
+#Combinar archivos ordenados
+
+tv_merge -i /home/pi/guia/temp_epg/mexico_temp.xml -m /home/pi/guia/temp_epg/colombia_temp.xml -o /home/pi/guia/epg/combinado_mex_co.xmltv
+
+
+#Eliminar los archivos temporales creados
+
+
+cd /home/pi/guia/temp_epg
+
+rm -f colombia_temp.xml
+rm -f mexico_temp.xml
+rm -f mexico.xml
+rm -f colombia.xml > /dev/null 2>/dev/null
+
+
+
+
+-Lo hacemos ejecutable
+
+sudo chmod 775 /home/pi/guia/Scripts/combinar_xml.sh
+
+-Cambiamos el usuario y grupo
+
+sudo chown pi:root /home/pi/guia/Scripts/combinar_xml.sh
+
+5-CREAREMOS UNA TAREA PROGRAMADA QUE SE EJECUTARA LOS DIAS DOMINGO Y MIERCOLES
+A LAS 3:30 AM
+
+14-TIPEAMOS
+
+crontab -e
+
+15-ELEGIMOS NUESTRO EDITOR PREFERIDO, YO VOY A ELEGIR nano (1 + enter)
+
+16-AHORA NOS VAMOS HASTA ABAJO Y ESCRIBIMOS ESTO.
+
+30 3 * * 0,3 /home/pi/guia/Scripts/combinar_xml.sh
+
+
+************************************************************
+OJO
+********************************************************
+
+SI TIENE UN SCRIPT QUE DESCARGA SUS ARCHIVOS XML PUEDE COMBINAR ESE SCRIPT CON ESTE.
+
+
+*Crear bash script:
+
+
+#!/bin/bash
+
+#Este script descarga sus archivos xml y los combina en un solo archivo
+
+#Descargar sus xml
+#Reemplazar las URL con las de su proveedor xml
+
+cd /home/pi/guia/temp_epg/
+
+wget -O colombia.xml "http://192.168.2.106:8090/cualquiera-1.m3u"
+
+wget -O mexico.xml "http://192.168.2.106:8090/cualquiera-2.m3u"
+
+
+#Ordenamos el primero
+
+tv_sort --by-channel --output /home/pi/guia/temp_epg/colombia_temp.xml /home/pi/guia/temp_epg/colombia.xml >/dev/null 2>&1
+
+#Ordenamos el segundo
+
+tv_sort --by-channel --output /home/pi/guia/temp_epg/mexico_temp.xml /home/pi/guia/temp_epg/mexico.xml >/dev/null 2>&1
+
+
+#Combinar archivos ordenados
+
+tv_merge -i /home/pi/guia/temp_epg/mexico_temp.xml -m /home/pi/guia/temp_epg/colombia_temp.xml -o /home/pi/guia/epg/combinado_mex_co.xmltv
+
+
+#Eliminar los archivos creados
+
+rm -f colombia_temp.xml
+rm -f mexico_temp.xml
+rm -f mexico.xml
+rm -f colombia.xml > /dev/null 2>/dev/null
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
