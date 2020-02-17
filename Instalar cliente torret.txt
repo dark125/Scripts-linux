@@ -1,0 +1,109 @@
+ANTES DE COMENZAR DEBE TENER UNA IP FIJA ASIGNADA A SU RPI4
+
+
+1.-Actualizar raspbian
+
+sudo apt-get update
+
+2-Instalar cliente torrent
+
+sudo apt-get install qbittorrent-nox
+
+-----------------------------------------------------------------------------
+OPCIONAL: SI QUIERE MAS SEGURIDAD PODRÍAS AÑADIR UN NUEVO USUARIO PARA qbittorrent
+
+sudo adduser qbtuser
+
+Establezca una contraseña fácil de recordar, deshabilitaremos el acceso SSH a este usuario más tarde.
+-------------------------------------------------------------------------------------
+
+3.-Crearemos un servicio
+
+sudo nano /etc/systemd/system/qbittorrent.service
+
+4-Pegamos esto:
+***OJO SI CREASTE UN NUEVO USUARIO PARA qbittorrent, ENTONCES REEMPLAZAR User=pi POR User=qbtuser Y ELIMINAR
+Group=pi****
+-----------------------------------------------------------------------------
+
+[Unit]
+Description=qBittorrent Daemon Service
+After=network.target
+
+[Service]
+User=pi
+Group=pi
+ExecStart=/usr/bin/qbittorrent-nox --webui-port=8080
+
+
+[Install]
+WantedBy=multi-user.target
+
+----------------------------------------------------------------------------
+
+----Guarde el archivo y salga del editor.----
+
+******************************************************************************
+////////SOLO HACER ESTO SI CREO EL USUARIO qbtuser//////////////////
+****Vamos a ver si todo está bien*****
+
+sudo systemctl daemon-reload
+sudo su qbtuser
+qbittorrent-nox
+
+***Presione Ctrl + C para salir.***
+
+***Escriba exit para salir de qbtuser.****
+
+*****************************************************************************
+
+
+5.-AHora ejecutamos
+
+sudo systemctl daemon-reload
+sudo systemctl start qbittorrent.service
+
+
+6-Para iniciar el servicio para ejecutarse cada vez en el inicio.
+
+sudo systemctl enable qbittorrent.service
+
+7.-PARA VER SI EL SERVICIO ESTA CORRIENDO
+
+sudo systemctl status qbittorrent.service
+
+8.Ya puede acceder al cliente torrent desde el navegador
+
+http://ip-of-server:8080/
+
+--en mi caso-----
+
+http://192.168.2.106:8080/
+
+
+Usuario: admin
+Contraseña: adminadmin
+
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////SI CREO UN NUEVO USUARIO qbtuser
+
+
+**Deshabilite el inicio de sesión de la cuenta para SSH (por razones de seguridad), esta cuenta seguirá siendo accesible localmente.**
+
+sudo usermod -s /usr/sbin/nologin qbtuser
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Comandos generales
+
+Iniciar qBittorrent
+$ sudo systemctl start qbittorrent
+
+Detener qBittorrent:
+$ sudo systemctl stop qbittorrent
+
+Ver estado:
+$ sudo systemctl status qbittorrent
+
+
